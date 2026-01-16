@@ -1,5 +1,6 @@
 from core.bot import Bot
 
+
 def main():
     bot = Bot()
     bot.run_()

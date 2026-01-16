@@ -5,4 +5,4 @@ load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
 
-assert(TOKEN)
+assert TOKEN
