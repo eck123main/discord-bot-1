@@ -10,7 +10,17 @@ class Impostors(commands.Cog):
         self.bot = bot
         self.service = bot.impostors_service
 
-    @commands.command("impostor")
+    @commands.command(
+        "impostor",
+        help="""
+!impostor <USERS> <NO. IMPOSTORS> <CATEGORY>
+    CATEGORY:
+        - fruits
+        - animals
+        - colours
+        - cr (Clash Royale)
+""",
+    )
     async def impostor(
         self,
         ctx: commands.Context,
