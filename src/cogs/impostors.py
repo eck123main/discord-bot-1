@@ -14,8 +14,9 @@ class Impostors(commands.Cog):
     async def impostor(
         self,
         ctx: commands.Context,
-        num_impostors: int,
         members_: commands.Greedy[Member],
+        num_impostors: int,
+        category: str | None,
     ):
         if not members_:
             await ctx.send(
@@ -37,7 +38,9 @@ class Impostors(commands.Cog):
 
         member_ids: list[MemberId] = [member.id for member in members]
         try:
-            game_id: GameId = self.service.start_game(member_ids, num_impostors)
+            game_id: GameId = self.service.start_game(
+                member_ids, num_impostors, category
+            )
         except Exception as e:
             await ctx.send(f"Error starting game!\nError:{e}")
             return
@@ -45,10 +48,9 @@ class Impostors(commands.Cog):
         try:
             for member in members:
                 member_id = member.id
-                if self.service.check_impostor(game_id, member_id):
-                    await member.send("You are an impostor!")
-                else:
-                    await member.send("You are a normal!")
+                message = self.service.get_initial_message(game_id, member_id)
+
+                await member.send(message)
 
         except Exception as e:
             await ctx.send(f"Something went wrong!\nError: {e}")

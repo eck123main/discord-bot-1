@@ -1,0 +1,5 @@
+{
+  "fruits": ["apple", "banana", "orange"],
+  "animals": ["cat", "dog", "elephant"],
+  "colours": ["red", "blue", "green"]
+}
