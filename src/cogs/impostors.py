@@ -1,11 +1,13 @@
-import asyncio
-
 from discord import Member
 from discord.ext import commands
 from core import bot
 from custom_types.discord import MemberId
 from custom_types.impostors import GameId
-from utils.direct_message import safe_direct_message
+from utils.direct_message import (
+    dynamic_test_mass_direct_message,
+    fail_message,
+)
+from utils.channel_message import mass_channel_message, channel_message
 
 
 class Impostors(commands.Cog):
@@ -43,55 +45,51 @@ class Impostors(commands.Cog):
         id_to_member = {member.id: member for member in members}
 
         # Attempt to send messages to all members
-        message_results = await asyncio.gather(
-            *(
-                safe_direct_message(
-                    member,
-                    """
+        test_message = """
 You have been selected to play impostor! Standby. 
 If you do not receive a message soon, something has gone wrong :(
-""",
-                )
-                for member in members
-            )
+"""
+        failed_messages = await dynamic_test_mass_direct_message(
+            members, lambda member: test_message
         )
 
-        # Check for messages that failed to send
-        failed_messages_members = [
-            (member, e) for member, e in zip(members, message_results) if e
-        ]
-
         # List out all members that failed to receive a message and immediately return
-        if failed_messages_members:
-            for member, e in failed_messages_members:
-                await ctx.send(
-                    f"Failed to send a message to {member.mention}!\nError: {e}"
-                )
+        if failed_messages:
+            assert not await mass_channel_message(
+                ctx,
+                (fail_message(member, e) for member, e in failed_messages),
+            )
             return
 
+        # Initialise game
         member_ids: list[MemberId] = list(id_to_member.keys())
         try:
             game_id: GameId = self.service.start_game(
                 member_ids, num_impostors, category
             )
         except Exception as e:
-            await ctx.send(f"Error starting game!\nError:{e}")
+            assert not await channel_message(ctx, f"Error starting game!\nError:{e}")
             return
 
-        try:
-            for member in members:
-                member_id = member.id
-                message = self.service.get_initial_message(game_id, member_id)
+        # Now send each member their messages to start the game
+        failed_messages = await dynamic_test_mass_direct_message(
+            members, lambda member: self.service.get_initial_message(game_id, member.id)
+        )
 
-                await member.send(message)
+        if failed_messages:
+            assert not await mass_channel_message(
+                ctx,
+                (fail_message(member, e) for member, e in failed_messages),
+            )
+            return
 
-        except Exception as e:
-            await ctx.send(f"Something went wrong!\nError: {e}")
+        assert not await channel_message(
+            ctx, "Successfully sent messages to each member!"
+        )
 
-        await ctx.send("Successfully sent messages to each member!")
-
-        await ctx.send(
-            f"First to play: {id_to_member[self.service.get_first_to_play(game_id)].mention}"
+        assert not await channel_message(
+            ctx,
+            f"First to play: {id_to_member[self.service.get_first_to_play(game_id)].mention}",
         )
 
 
