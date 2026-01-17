@@ -1,5 +1,5 @@
 from datetime import timedelta
-from discord import Member, Interaction, TextChannel, Poll, PollAnswer
+from discord import Member, Interaction, TextChannel, Poll
 from discord.ext import commands
 from discord.ui import Button, View, button
 from core import bot
