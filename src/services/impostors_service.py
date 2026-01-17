@@ -108,10 +108,16 @@ class ImpostorsService:
         with open(WORDS_PATH) as f:
             self._word_bank: dict[str, list[str]] = json.load(f)
 
+        self._categories = sorted(list(self._word_bank.keys()))
+
     # Getters
     @property
     def games(self) -> list[Game]:
         return self._games
+
+    @property
+    def categories(self) -> list[str]:
+        return self._categories
 
     # Getters but with extra steps
     def _get_game(self, game_id: GameId) -> Game:

@@ -45,7 +45,6 @@ class Impostors(commands.Cog):
         ctx: commands.Context,
         members_: commands.Greedy[Member],
         num_impostors: int,
-        category: str | None,
     ):
         if not members_:
             assert not await channel_message(
@@ -75,6 +74,9 @@ If you do not receive a message soon, something has gone wrong :(
                 (fail_message(member, e) for member, e in failed_messages),
             )
             return
+
+        # Get the category
+        category = await self.query_category(ctx.channel)
 
         # Initialise game
         member_ids: list[MemberId] = list(id_to_member.keys())
@@ -118,6 +120,20 @@ If you do not receive a message soon, something has gone wrong :(
             view=game_control_view,
         )
 
+    async def query_category(self, channel: TextChannel) -> str:
+        categories = self.service.categories
+        category_select_view = CategorySelectView(categories)
+
+        assert not await channel_message(
+            channel, "**Choose a category**", view=category_select_view
+        )
+
+        await category_select_view.wait()
+
+        category = category_select_view.category
+
+        return category
+
     async def begin_poll(self, channel: TextChannel, game_id: GameId):
         # impostor_count = len(self.service.get_impostor_ids(game_id))
         member_ids = self.service.get_member_ids(game_id)
@@ -152,17 +168,63 @@ async def setup(bot: bot.Bot):
     await bot.add_cog(Impostors(bot))
 
 
+class CategorySelectView(View):
+    MAX_PRESSES = 1
+
+    def __init__(
+        self,
+        categories: list[str],
+    ):
+        super().__init__(timeout=60)
+        self._pressed = 0
+        self._category: str | None = None
+
+        self.add_item(CategoryButton("All", None))
+        for category in categories:
+            self.add_item(CategoryButton(category, category))
+
+    @property
+    def category(self):
+        return self._category
+
+    def _set_category(self, category: str | None):
+        self._category = category
+
+    async def check_done(self):
+        if self._pressed == self.MAX_PRESSES:
+            self.stop()
+
+    async def _do_after_press(self, interaction: Interaction, button: Button):
+        if not button.label:
+            return
+        self._pressed += 1
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+        await self.check_done()
+
+
+class CategoryButton(Button):
+    def __init__(self, label: str, category: str | None):
+        super().__init__(label=label)
+        self.category = category
+
+    async def callback(self, interaction: Interaction):
+        view: CategorySelectView = self.view  # ty:ignore[invalid-assignment]
+        view._set_category(self.category)
+        await view._do_after_press(interaction, self)
+
+
 class GameControlView(View):
-    NUM_BUTTONS = 3
+    MAX_PRESSES = 3
 
     def __init__(self, impostors_cog: Impostors, game_id: GameId):
-        super().__init__(timeout=None)
+        super().__init__(timeout=3600)
         self._cog = impostors_cog
         self._game_id = game_id
         self._pressed = 0
 
     async def check_done(self):
-        if self._pressed == self.NUM_BUTTONS:
+        if self._pressed == self.MAX_PRESSES:
             self.stop()
 
     async def _do_after_press(self, interaction: Interaction, button: Button):
