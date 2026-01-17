@@ -159,32 +159,34 @@ class GameControlView(View):
         super().__init__(timeout=None)
         self._cog = impostors_cog
         self._game_id = game_id
-        self._pressed: set[str] = set()
+        self._pressed = 0
 
-    def check_done(self):
-        if len(self._pressed) == self.NUM_BUTTONS:
+    async def check_done(self):
+        if self._pressed == self.NUM_BUTTONS:
             self.stop()
+
+    async def _do_after_press(self, interaction: Interaction, button: Button):
+        if not button.label:
+            return
+        self._pressed += 1
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+        await self.check_done()
 
     @button(label="Begin Poll")
     async def begin_poll(self, interaction: Interaction, button: Button):
         assert type(interaction.channel) is TextChannel
-        self._pressed.add("Begin Poll")
-        await interaction.response.defer()
         await self._cog.begin_poll(interaction.channel, self._game_id)
-        self.check_done()
+        await self._do_after_press(interaction, button)
 
     @button(label="Reveal impostors")
     async def reveal_impostors(self, interaction: Interaction, button: Button):
         assert type(interaction.channel) is TextChannel
-        self._pressed.add("Reveal impostors")
-        await interaction.response.defer()
         await self._cog.reveal_impostors(interaction.channel, self._game_id)
-        self.check_done()
+        await self._do_after_press(interaction, button)
 
     @button(label="Reveal word")
     async def reveal_word(self, interaction: Interaction, button: Button):
         assert type(interaction.channel) is TextChannel
-        self._pressed.add("Reveal word")
-        await interaction.response.defer()
         await self._cog.reveal_word(interaction.channel, self._game_id)
-        self.check_done()
+        await self._do_after_press(interaction, button)
