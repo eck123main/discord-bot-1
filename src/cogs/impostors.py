@@ -36,8 +36,9 @@ class Impostors(commands.Cog):
         category: str | None,
     ):
         if not members_:
-            await ctx.send(
-                "No players detected!\nUsage: !impostor <No. impostors> <Members>"
+            assert not await channel_message(
+                ctx.channel,
+                "No players detected!\nUsage: !impostor <No. impostors> <Members>",
             )
             return
 
@@ -56,7 +57,7 @@ If you do not receive a message soon, something has gone wrong :(
         # List out all members that failed to receive a message and immediately return
         if failed_messages:
             assert not await mass_channel_message(
-                ctx,
+                ctx.channel,
                 (fail_message(member, e) for member, e in failed_messages),
             )
             return
@@ -68,7 +69,9 @@ If you do not receive a message soon, something has gone wrong :(
                 member_ids, num_impostors, category
             )
         except Exception as e:
-            assert not await channel_message(ctx, f"Error starting game!\nError:{e}")
+            assert not await channel_message(
+                ctx.channel, f"Error starting game!\nError:{e}"
+            )
             return
 
         # Now send each member their messages to start the game
@@ -78,17 +81,17 @@ If you do not receive a message soon, something has gone wrong :(
 
         if failed_messages:
             assert not await mass_channel_message(
-                ctx,
+                ctx.channel,
                 (fail_message(member, e) for member, e in failed_messages),
             )
             return
 
         assert not await channel_message(
-            ctx, "Successfully sent messages to each member!"
+            ctx.channel, "Successfully sent messages to each member!"
         )
 
         assert not await channel_message(
-            ctx,
+            ctx.channel,
             f"First to play: {id_to_member[self.service.get_first_to_play(game_id)].mention}",
         )
 
