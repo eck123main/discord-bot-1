@@ -4,11 +4,6 @@
     "banana",
     "orange"
   ],
-  "animals": [
-    "cat",
-    "dog",
-    "elephant"
-  ],
   "colours": [
     "red",
     "blue",
@@ -209,7 +204,7 @@
     "wither skeleton",
     "zombie"
   ],
-  "minecraft-tools": [
+  "minecraft_tools": [
     "flint-and-steel",
     "axe",
     "sword",

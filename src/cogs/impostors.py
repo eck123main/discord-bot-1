@@ -25,11 +25,19 @@ class Impostors(commands.Cog):
 !impostor <USERS> <NO. IMPOSTORS> <CATEGORY>
     CATEGORY:
         - fruits
-        - animals
         - colours
         - cr (Clash Royale)
+        - minecraft_mobs
+        - minecraft_tools
         - minecraft
+        - degrees
+        - misc
         - fnd (Foods & Drinks)
+        - pets
+        - transportation
+        - animals
+        - sports
+        - games
 """,
     )
     async def impostor(
