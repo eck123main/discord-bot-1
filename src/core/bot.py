@@ -24,6 +24,9 @@ class Bot(commands.Bot):
             intents=intents,
         )
 
+    def get_impostors_service(self) -> ImpostorsService:
+        return self.impostors_service
+
     # Sync commands
     async def setup_hook(self):
         # Load extensions

@@ -75,6 +75,14 @@ class Game:
     def first_to_play(self) -> MemberId:
         return self._first_to_play
 
+    @property
+    def word(self) -> str:
+        return self._word
+
+    @property
+    def hint(self) -> str:
+        return self._hint
+
     def check_impostor(self, member_id: MemberId) -> bool:
         return member_id in self.impostors
 
@@ -130,6 +138,11 @@ class ImpostorsService:
         self._games.append(game)
         return game_id
 
+    def get_member_ids(self, game_id: GameId) -> list[MemberId]:
+        game = self._get_game(game_id)
+
+        return game.members
+
     def get_impostor_ids(self, game_id: GameId) -> list[MemberId]:
         game = self._get_game(game_id)
 
@@ -159,3 +172,8 @@ class ImpostorsService:
         game = self._get_game(game_id)
 
         return game.first_to_play
+
+    def get_word(self, game_id: GameId) -> str:
+        game = self._get_game(game_id)
+
+        return game.word
