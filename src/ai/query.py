@@ -18,9 +18,9 @@ def query_hint(word: str) -> str:
             {
                 "role": "system",
                 "content": """
-We are playing the impostor. One impostor does not know the word, everyone else does.
-Each person must say a word to prove their innocence, whilst trying their best to not expose the word to the impostor.
-Please give a hint word to the impostor. Try to not make the hint word too closely correlated with the word.
+Game: Impostor.
+Given a secret word, give ONE indirect hint word for the player who does not know it.
+Avoid close synonyms.
 """,
             },
             {
