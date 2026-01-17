@@ -6,6 +6,8 @@ from custom_types.impostors import GameId
 
 from defaults.paths import WORDS_PATH
 
+from ai.query import query_hint
+
 import json
 import random
 
@@ -47,6 +49,7 @@ class Game:
             raise AssertionError("Category is not in the word bank.")
 
         self._word = random.choice(word_bank[self._category])
+        self._hint: str = query_hint(self._word)
 
     @property
     def game_id(self) -> GameId:
@@ -83,7 +86,7 @@ class Game:
             return f"Normal! Word: {self._word}"
 
         if self.check_impostor(member_id):
-            return f"Impostor! Category: {self.category}"
+            return f"Impostor! Hint: {self._hint}"
 
         raise AssertionError("MemberId is invalid.")
 
