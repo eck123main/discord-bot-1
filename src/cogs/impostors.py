@@ -26,13 +26,13 @@ class Impostors(commands.Cog):
     CATEGORY:
         - fruits
         - colours
-        - cr (Clash Royale)
-        - minecraft_mobs
-        - minecraft_tools
+        - clash royale
+        - minecraft mobs
+        - minecraft tools
         - minecraft
-        - degrees
+        - university degrees
         - misc
-        - fnd (Foods & Drinks)
+        - foods and drinks
         - pets
         - transportation
         - animals

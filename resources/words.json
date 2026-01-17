@@ -10,7 +10,7 @@
     "green",
     "black"
   ],
-  "cr": [
+  "clash royale": [
     "musketeer",
     "earthquake",
     "night-witch",
@@ -133,7 +133,7 @@
     "tombstone",
     "mega-minion"
   ],
-  "minecraft_mobs" : [ 
+  "minecraft mobs": [
     "armadillo",
     "axolotl",
     "bat",
@@ -204,7 +204,7 @@
     "wither skeleton",
     "zombie"
   ],
-  "minecraft_tools": [
+  "minecraft tools": [
     "flint-and-steel",
     "axe",
     "sword",
@@ -1463,7 +1463,7 @@
     "minecraft:zombie_villager_spawn_egg",
     "minecraft:zombified_piglin_spawn_egg"
   ],
-  "degrees": [
+  "university degrees": [
     "computer-science",
     "artifical-intelligence",
     "cyber-security",
@@ -1499,7 +1499,6 @@
     "marine-biology",
     "geology",
     "aviation"
-
   ],
   "misc": [
     "standing ovation",
@@ -1899,7 +1898,7 @@
     "heel",
     "Atlantis"
   ],
-  "fnd": [
+  "foods and drinks": [
     "Pizza",
     "Kebab",
     "Hamburger",
@@ -1978,7 +1977,7 @@
     "Smoothie",
     "Milk Shake"
   ],
-  "pets" : [
+  "pets": [
     "dog",
     "cat",
     "rabbit",
@@ -2128,7 +2127,7 @@
     "uno",
     "pictionary",
     "battleship",
-    "connect-four",    
+    "connect-four",
     "minecraft",
     "fortnite",
     "pokemon",
