@@ -50,7 +50,7 @@ class Impostors(commands.Cog):
         if not members_:
             assert not await channel_message(
                 ctx.channel,
-                "No players detected!\nUsage: !impostor <No. impostors> <Members>",
+                "No players detected!\nUsage: !impostor <Members> <No. impostors> Optional<Category>",
             )
             return
 
