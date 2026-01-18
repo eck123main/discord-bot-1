@@ -94,10 +94,10 @@ class Game:
 
     def get_initial_message(self, member_id: MemberId) -> str:
         if self.check_normal(member_id):
-            return f"Normal! Word: {self._word}"
+            return f"**Normal!** Word: {self._word}"
 
         if self.check_impostor(member_id):
-            return f"Impostor! Hint: {self._hint}"
+            return f"**Impostor!** Hint: {self._hint}"
 
         raise AssertionError("MemberId is invalid.")
 
