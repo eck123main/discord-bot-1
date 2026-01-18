@@ -18,12 +18,11 @@ class Game:
         game_id: GameId,
         members: list[MemberId],
         num_impostors: int,
-        category: str | None,
+        categories: list[str],
         word_bank: dict[str, list[str]],
     ):
         self._game_id = game_id
         self._members = list(set(members))
-        self._category = "unknown" if not category else category.lower()
 
         # Assert this will be a valid game
         if not num_impostors <= len(self._members):
@@ -42,10 +41,14 @@ class Game:
 
         # Determine the secret word
         self._word: str
-        if self._category == "unknown":
+        self._category: str
+        if not categories:
             self._category = random.choice(list(word_bank.keys()))
 
-        elif self._category not in word_bank:
+        else:
+            self._category = random.choice(categories)
+
+        if self._category not in word_bank:
             raise AssertionError("Category is not in the word bank.")
 
         self._word = random.choice(word_bank[self._category])
@@ -137,10 +140,10 @@ class ImpostorsService:
             raise RuntimeError(f"GameId {game_id} is invalid.")
 
     def start_game(
-        self, members: list[MemberId], num_impostors: int, category: str | None
+        self, members: list[MemberId], num_impostors: int, categories: list[str]
     ) -> GameId:
         game_id = len(self._games)
-        game = Game(game_id, members, num_impostors, category, self._word_bank)
+        game = Game(game_id, members, num_impostors, categories, self._word_bank)
         self._games.append(game)
         return game_id
 
