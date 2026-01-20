@@ -76,13 +76,13 @@ If you do not receive a message soon, something has gone wrong :(
             return
 
         # Get the category
-        category = await self.query_category(ctx.channel)
+        categories = await self.query_category(ctx.channel)
 
         # Initialise game
         member_ids: list[MemberId] = list(id_to_member.keys())
         try:
             game_id: GameId = self.service.start_game(
-                member_ids, num_impostors, category
+                member_ids, num_impostors, categories
             )
         except Exception as e:
             assert not await channel_message(
@@ -120,9 +120,9 @@ If you do not receive a message soon, something has gone wrong :(
             view=game_control_view,
         )
 
-    async def query_category(self, channel: TextChannel) -> str:
-        categories = self.service.categories
-        category_select_view = CategorySelectView(categories)
+    async def query_category(self, channel: TextChannel) -> list[str]:
+        all_categories = self.service.categories
+        category_select_view = CategorySelectView(all_categories)
 
         assert not await channel_message(
             channel, "**Choose a category**", view=category_select_view
@@ -130,9 +130,9 @@ If you do not receive a message soon, something has gone wrong :(
 
         await category_select_view.wait()
 
-        category = category_select_view.category
+        categories = category_select_view.selected_categories
 
-        return category
+        return categories
 
     async def begin_poll(self, channel: TextChannel, game_id: GameId):
         # impostor_count = len(self.service.get_impostor_ids(game_id))
@@ -169,29 +169,42 @@ async def setup(bot: bot.Bot):
 
 
 class CategorySelectView(View):
-    MAX_PRESSES = 1
-
     def __init__(
         self,
         categories: list[str],
     ):
         super().__init__(timeout=60)
+        assert categories
+        self.MAX_PRESSES = len(categories)
         self._pressed = 0
-        self._category: str | None = None
+        self._categories = categories
+        self._selected_categories: list[str] = []
 
-        self.add_item(CategoryButton("All", None))
+        self.add_item(CategoryButton("All", "All"))
+
         for category in categories:
             self.add_item(CategoryButton(category, category))
 
-    @property
-    def category(self):
-        return self._category
+        self.add_item(CategoryButton("Done", "Done"))
 
-    def _set_category(self, category: str | None):
-        self._category = category
+    @property
+    def selected_categories(self):
+        return self._selected_categories
+
+    def _add_category(self, category: str):
+        self._selected_categories.append(category)
+
+    def _add_all_categories(self, category: str):
+        self._selected_categories = self._categories
+
+        self._pressed = self.MAX_PRESSES
+
+    async def force_done(self, interaction: Interaction, button: Button):
+        self._pressed = self.MAX_PRESSES
+        await self._do_after_press(interaction, button)
 
     async def check_done(self):
-        if self._pressed == self.MAX_PRESSES:
+        if self._pressed >= self.MAX_PRESSES:
             self.stop()
 
     async def _do_after_press(self, interaction: Interaction, button: Button):
@@ -204,13 +217,24 @@ class CategorySelectView(View):
 
 
 class CategoryButton(Button):
-    def __init__(self, label: str, category: str | None):
+    def __init__(self, label: str, category: str):
         super().__init__(label=label)
         self.category = category
 
     async def callback(self, interaction: Interaction):
         view: CategorySelectView = self.view  # ty:ignore[invalid-assignment]
-        view._set_category(self.category)
+
+        match self.category.lower():
+            case "all":
+                view._add_all_categories("")
+
+            case "done":
+                await view.force_done(interaction, self)
+                return
+
+            case _:
+                view._add_category(self.category)
+
         await view._do_after_press(interaction, self)
 
 
